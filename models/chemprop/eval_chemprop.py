@@ -97,6 +97,11 @@ if __name__ == '__main__':
     p_precision, p_recall, thresholds = precision_recall_curve(test_df['final_activity_label'], [x for x in cp_pred])
     print('\tAUPRC: ', auc(p_recall, p_precision))
 
+    
+    if args.output_path is not None:
+        test_df['cp_pred'] = cp_pred
+        test_df['cp_uncertainty'] = cp_uncertainty
+        test_df.to_csv(args.output_path, index=False)
     # best_threshold, best_mcc, dataset_prediction = _get_best_thresholds(
     #                                             model,
     #                                             dataset=mpnn_dataset,

@@ -13,8 +13,6 @@ from tqdm import tqdm
 from functools import partial
 from tqdm import tqdm
 
-from losses import WeightedFocalLoss
-from train_test import train, eval
 from dataset import MoleculeDataset, smilesCollate
 from lightning_model import FFN, FFNMolFormer, FFNMolFormer_Global
 from lightning.pytorch import Trainer, seed_everything
@@ -107,5 +105,7 @@ if __name__ == '__main__':
     p_precision, p_recall, thresholds = precision_recall_curve(df['final_activity_label'], df['prediction'])
     print('\tAUPRC: ', auc(p_recall, p_precision))
 
-    df[['Smiles', 'cluster_id', 'prediction', 'uncertainty']].to_csv(args.output_path, index=False)
+    if args.output_path is not None:
+        df[['Smiles', 'cluster_id', 'prediction', 'uncertainty']].to_csv(args.output_path, index=False)
+    
 

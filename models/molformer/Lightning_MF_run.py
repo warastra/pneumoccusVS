@@ -11,8 +11,6 @@ from typing import Any
 from tqdm import tqdm
 from functools import partial
 
-from losses import WeightedFocalLoss
-from train_test import train, eval
 from dataset import MoleculeDataset, smilesCollate
 from lightning_model import FFN, FFNMolFormer, FFNMolFormer_Global
 from lightning.pytorch import Trainer, seed_everything
@@ -124,7 +122,7 @@ if __name__ == '__main__':
         val_dataset = MoleculeDataset(df.loc[val_idx]['Smiles'].values, df.loc[val_idx]['final_activity_label'].values)
         val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=smiles_collater, num_workers=8)
     else:
-        val_loader = None
+        val_loader = test_loader
         train_idx = train_val_df.index.values
 
     print('Setting up train loader..')
