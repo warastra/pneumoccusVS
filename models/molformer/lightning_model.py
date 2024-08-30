@@ -4,7 +4,8 @@ from typing import Any, Mapping
 import lightning as L
 # from torchmetrics.classification import PrecisionRecallCurve
 # from torchmetrics.functional import auc
-from torcheval.metrics.functional import binary_auprc, matthews_corrcoef
+from torcheval.metrics.functional import binary_auprc
+from torchmetrics.functional.classification import binary_matthews_corrcoef
 from transformers import AutoModel, AutoTokenizer
 # from losses import WeightedFocalLoss
 
@@ -130,7 +131,7 @@ class FFNMolFormer(L.LightningModule):
         y_scores = torch.cat(self.eval_y_scores, dim = 0)
         auprc = binary_auprc(y_scores[:,1], y_true[:,1])
         self.log("val_auprc", auprc, sync_dist=True)
-        mcc = matthews_corrcoef(y_scores[:,1], y_true[:,1], threshold=0.5)
+        mcc = binary_matthews_corrcoef(y_scores[:,1], y_true[:,1], threshold=0.5)
         self.log("val_mcc50", mcc, sync_dist=True)
         
         self.eval_loss.clear()
