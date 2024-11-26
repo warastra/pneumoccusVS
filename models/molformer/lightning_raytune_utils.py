@@ -1,17 +1,9 @@
-import torch
-import torch.nn as nn
 from lightning_model import FFNMolFormer
 import lightning as L
 from transformers import AutoModel, AutoTokenizer
-from train_test import train as train_model, eval
 
 from pathlib import Path
 from typing import Dict, Any, List
-import tempfile
-
-# from ray import train
-# from ray.train import Checkpoint, get_checkpoint
-# import ray.cloudpickle as pickle
 import ray.train.lightning
 from ray.train.torch import TorchTrainer
 
@@ -42,8 +34,3 @@ def train_fn(config:Dict, train_loader, val_loader=None, nEpochs=10):
     trainer = ray.train.lightning.prepare_trainer(trainer)
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
-# def test_fn(model, test_loader, device="cuda" if torch.cuda.is_available() else "cpu", criterion=nn.CrossEntropyLoss(reduction = 'none')):
-#     trainer.test
-#     test_result = eval(model, device, test_loader, criterion=criterion)
-#     report = {"loss": test_result['loss'], "auprc": test_result['AUPRC'], "mcc50":test_result['mcc50']}
-#     return report, test_result['prediction']

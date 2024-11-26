@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-
+# load MolFormer model & tokenizer
 MolFormerXL = AutoModel.from_pretrained("ibm/MoLFormer-XL-both-10pct", deterministic_eval=True, trust_remote_code=True)
 MolFormerXL_tokenizer = AutoTokenizer.from_pretrained("ibm/MoLFormer-XL-both-10pct", trust_remote_code=True)
 
@@ -98,6 +98,8 @@ if __name__ == '__main__':
                             monitor='val_auprc', 
                             mode='max',
                             verbose=True)
+    
+    # initialize pytorch lightning trainer
     trainer = Trainer(
                 default_root_dir="lightning_checkpoint", 
                 max_epochs=args.nEpochs, 
@@ -108,6 +110,7 @@ if __name__ == '__main__':
     if args.with_validation:
         val_idx = train_val_df[train_val_df[args.cluster_id_colname].isin(args.val_cluster_ids)].index.values
         if args.split_method == 'random':
+            # random split with test size based on cluster size
             strat_idx = train_val_df['final_activity_label'].values
             tSize = len(val_idx)
             train_idx, val_idx = train_test_split(

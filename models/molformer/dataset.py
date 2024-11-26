@@ -32,6 +32,7 @@ def smilesCollate(samples, tokenizer, max_len=800, get_global_features=False):
     smiles_inputs = tokenizer(smiles, return_tensors="pt", padding='max_length', max_length=max_len)
     labels = torch.tensor(np.array(labels)).type(torch.float32)
 
+    # in case need to add 200 molecular-level rdkit descriptors
     if get_global_features:
         featurizer = RDKitDescriptors(use_bcut2d=False, is_normalized=True)
         global_features = torch.tensor(featurizer.featurize(smiles)).to(torch.float32)

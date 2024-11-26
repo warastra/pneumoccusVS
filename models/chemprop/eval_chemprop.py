@@ -10,6 +10,7 @@ from predict_utils import _get_best_thresholds, check_result, _get_model_predict
 from losses import dcFocalLoss
 
 import os, argparse, glob
+from datetime import datetime
 import numpy as np      
 from sklearn.metrics import precision_recall_curve, confusion_matrix, roc_auc_score, auc, matthews_corrcoef, precision_score, recall_score
 
@@ -17,6 +18,7 @@ from sklearn.metrics import precision_recall_curve, confusion_matrix, roc_auc_sc
 
 
 if __name__ == '__main__':
+    print("start time: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', default=r'..\processed_datasets\10uM_FP_clustered__resistant_pneumococcus_augmented_dataset_v7.csv', type=str, help='dataset file path')
     parser.add_argument('--cluster_id_colname', default='cluster_id',  type=str, help='name of the column containing cluster ID')
@@ -27,6 +29,8 @@ if __name__ == '__main__':
     parser.add_argument('--focal_alpha', default=0.25,  type=int, help='focal loss alpha, only applicable if loss_fn == "focal"')
     parser.add_argument('--focal_gamma', default=2,  type=int, help='focal loss gamma, only applicable if loss_fn == "focal"')
     parser.add_argument('--train_all', action='store_true')
+    parser.add_argument('--data_limit', default=None, type=int)
+    parser.add_argument('--output_path', default=None, type=str)
     args = parser.parse_args()
     print("### run arguments ###")
     print(args)
@@ -37,8 +41,10 @@ if __name__ == '__main__':
         torch.cuda.manual_seed_all(args.random_seed)
     np.random.seed(args.random_seed)
 
-    df = pd.read_csv(args.data_path)
-    test_df = df[df[args.cluster_id_colname]==-1]
+    test_df = pd.read_csv(args.data_path)
+    if args.data_limit is not None:
+        test_df = test_df.iloc[:args.data_limit]
+    # test_df = df[df[args.cluster_id_colname]==-1]
     
     if args.algo == 'dmpnn':
         mpnn_featurizer = DMPNNFeaturizer()
@@ -51,7 +57,7 @@ if __name__ == '__main__':
     features = mpnn_featurizer.featurize(mols)
 
     test_dataset = NumpyDataset(
-        X=features, y=test_df["final_activity_label"], 
+        X=features, y=None, 
         ids=test_df["Smiles"]
     )
 
@@ -62,6 +68,7 @@ if __name__ == '__main__':
 
     model_files = glob.glob(os.path.join('model_garden', f'{args.model_dirs}*'))
     model_ensembles = []
+    print("inference start time: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     for model_dir in model_files:
         model = DMPNNModel(mode='classification', 
                                 # learning_rate=5e-5,
@@ -89,6 +96,7 @@ if __name__ == '__main__':
     # print('############################')
     
     cp_pred, cp_uncertainty = _get_model_prediction(model_ensembles, test_dataset, agg_fn='median')
+    print("inference end time: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
     print(args.model_dirs)
     print('\tMCC @0.5: ', matthews_corrcoef(test_df['final_activity_label'], [x>0.5 for x in cp_pred]))
@@ -102,6 +110,8 @@ if __name__ == '__main__':
         test_df['cp_pred'] = cp_pred
         test_df['cp_uncertainty'] = cp_uncertainty
         test_df.to_csv(args.output_path, index=False)
+    
+    print("end time: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     # best_threshold, best_mcc, dataset_prediction = _get_best_thresholds(
     #                                             model,
     #                                             dataset=mpnn_dataset,
