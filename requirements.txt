@@ -1,5 +1,5 @@
 beautifulsoup4==4.12.3
-deepchem==2.8.0.dev20240405164523
+deepchem==2.8.0
 joblib==1.4.2
 lightning==2.2.5
 numpy==1.22.1
