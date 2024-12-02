@@ -1,13 +1,13 @@
 #!/bin/bash
 #PBS -l select=1:ncpus=4:mem=36gb:ngpus=1:gpu_type=RTX6000
 #PBS -l walltime=24:00:00
-#PBS -N s5RandomEnsembleTunedFrozenCEMolformer
-#PBS -J 0-19
+#PBS -N s3EnsembleTunedFrozenCEMolformer
+#PBS -J 0-4
 
-# This script runs
+# This script train 5 individual MolFormer models as an array job with a single seed "random_seed".
 
 cd $PBS_O_WORKDIR
-random_seed=0
+random_seed=3
 
 module load tools/prod
 module load anaconda3/personal
