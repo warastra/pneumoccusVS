@@ -33,7 +33,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', default=256,  type=int, help='train/test batch size')
     parser.add_argument('--with_validation', action='store_true', help='train/test batch size')
     parser.add_argument('--val_cluster_ids', default=[0], nargs='+',type=int, help='cluster ids for validation set')
-    parser.add_argument('--chosen_cluster_ids', default=[0, 2, 3, 12, 14, 25], nargs='+',type=int, help='cluster ids for validation set')
+    parser.add_argument('--chosen_cluster_ids', default=[2, 3, 12, 14, 25], nargs='+',type=int, help='cluster ids for validation set')
     parser.add_argument('--chosen_cluster', action='store_true', help='is using chosen cluster')
     parser.add_argument('--loss_fn', default='cross_entropy',  type=str, choices=['cross_entropy', 'focal'], help='loss function')
     parser.add_argument('--focal_alpha', default=0.25,  type=int, help='focal loss alpha, only applicable if loss_fn == "focal"')
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                                     train_val_df.index.values, 
                                     stratify=strat_idx,
                                     test_size = tSize,
-                                    random_state = args.val_cluster_ids[0]
+                                    random_state = args.random_seed
                                 )
         else:
             train_idx = [x for x in train_val_df.index.values if x not in val_idx]
@@ -135,6 +135,8 @@ if __name__ == '__main__':
 
     trainer.fit(model, train_loader, val_loader, ckpt_path=args.checkpoint_path)
     print('training finished.')
+    if not os.path.exists('model_checkpoints'):
+        os.mkdir('model_checkpoints')
     trainer.save_checkpoint(os.path.join("model_checkpoints", f"{args.model_savename}.ckpt"))
     
     if not args.train_all:

@@ -1,5 +1,5 @@
 # pneumoccusVS
-A study on the best models for predicting Antibiotics that could be effective against drug-resistant Streptococcus pneumoniae
+A study on the best models for predicting Antibiotics that could be effective against drug-resistant Streptococcus pneumoniae. Requirements for this repo are tested on python 3.8.19
 
 ## Data Compilation
 Dataset for this study is compiled from ChEMBL and PubChem. Details on how the data are processed, filtered, and formatted can be found in `data_prep`

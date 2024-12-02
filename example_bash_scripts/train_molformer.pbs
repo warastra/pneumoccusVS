@@ -1,0 +1,16 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=4:mem=36gb:ngpus=1:gpu_type=RTX6000
+#PBS -l walltime=24:00:00
+#PBS -N s5RandomEnsembleTunedFrozenCEMolformer
+#PBS -J 0-19
+
+# This script runs
+
+cd $PBS_O_WORKDIR
+random_seed=0
+
+module load tools/prod
+module load anaconda3/personal
+source activate digichem11
+
+python Lightning_MF_run.py --data_path "../data/10uM_FP_clustered__resistant_pneumococcus_augmented_dataset_v7.csv" --cluster_id_colname cluster_id --nEpochs 5 --model_savename TunedCEMolFormerSeed${random_seed}Val${PBS_ARRAY_INDEX} --random_seed ${random_seed} --is_frozen --chosen_cluster --val_cluster_ids ${PBS_ARRAY_INDEX} --batch_size 256 --with_validation
