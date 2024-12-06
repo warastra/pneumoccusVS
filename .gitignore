@@ -1,2 +1,3 @@
 model_garden/TunedCEMolFormerSeed3Val0.ckpt
 _depr*
+model_garden/*.ckpt

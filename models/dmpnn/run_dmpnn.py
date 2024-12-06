@@ -26,9 +26,9 @@ if __name__ == '__main__':
     parser.add_argument('--random_seed', default=32,  type=int, help='torch random seed')
     parser.add_argument('--nEpochs', default=10,  type=int, help='torch random seed')
     parser.add_argument('--batch_size', default=128,  type=int, help='torch random seed')
-    parser.add_argument('--algo', default='chemprop', nargs='?',  type=str, choices=['chemprop', 'dmpnn'], help='choice of algorithms')
+    parser.add_argument('--global_features', action='store_true',  type=str, help='whether to concatenate RDKIT molecular descriptors')
     parser.add_argument('--loss_fn', default='cross_entropy', nargs='?',  type=str, choices=['cross_entropy', 'focal'], help='choice of algorithms')
-    parser.add_argument('--focal_alpha', default=0.25,  type=int, help='focal loss alpha, only applicable if loss_fn == "focal"')
+    parser.add_argument('--focal_alpha', default=25,  type=int, help='focal loss alpha as percentage, only applicable if loss_fn == "focal"')
     parser.add_argument('--focal_gamma', default=2,  type=int, help='focal loss gamma, only applicable if loss_fn == "focal"')
     parser.add_argument('--is_ensemble', action='store_true', help='whether to build ensemble models')
     parser.add_argument('--train_all', action='store_true')
@@ -45,10 +45,10 @@ if __name__ == '__main__':
 
     df = pd.read_csv(args.data_path)
     
-    if args.algo == 'chemprop':
+    if args.global_features :
         mpnn_featurizer = DMPNNFeaturizer(features_generators=['rdkit_desc_normalized']) # with molecular-level features
         global_feat_size = 200
-    elif args.algo == 'dmpnn':
+    else:
         mpnn_featurizer = DMPNNFeaturizer()
         global_feat_size = 0
     
@@ -121,7 +121,7 @@ if __name__ == '__main__':
                             aggregation='sum',
                             global_features_size=global_feat_size,
                             # model_dir='model_garden/{args.algo}_{args.loss_fn}_s{args.random_seed}'
-                            model_dir=os.path.join('model_garden', rf'{args.model_savename_prefix}_{args.algo}_{args.loss_fn}_s{args.random_seed}')
+                            model_dir=os.path.join('model_garden', rf'{args.model_savename_prefix}{args.algo}_{args.loss_fn}_s{args.random_seed}')
                             )
     
     

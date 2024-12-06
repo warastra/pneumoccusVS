@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--cluster_id_colname', default='cluster_id',  type=str, help='name of the column containing cluster ID')
     parser.add_argument('--model_dirs', default='_',  type=str, help='filename prefix of the saved model')
     parser.add_argument('--random_seed', default=32,  type=int, help='torch random seed')
-    parser.add_argument('--algo', default='chemprop', nargs='?',  type=str, choices=['chemprop', 'dmpnn'], help='choice of algorithms')
+    parser.add_argument('--global_features', action='store_true',  type=str, help='whether to concatenate RDKIT molecular descriptors')
     parser.add_argument('--loss_fn', default='cross_entropy', nargs='?',  type=str, choices=['cross_entropy', 'focal'], help='choice of algorithms')
     parser.add_argument('--focal_alpha', default=0.25,  type=int, help='focal loss alpha, only applicable if loss_fn == "focal"')
     parser.add_argument('--focal_gamma', default=2,  type=int, help='focal loss gamma, only applicable if loss_fn == "focal"')

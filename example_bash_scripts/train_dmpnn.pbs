@@ -1,0 +1,21 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=4:mem=36gb:ngpus=1:gpu_type=RTX6000
+#PBS -l walltime=24:00:00
+#PBS -N DMPNN_s32
+
+cd $PBS_O_WORKDIR
+random_seed=32
+
+module load tools/prod
+module load anaconda3/personal
+source activate digichem11
+
+# train D-MPNN model (cross entropy)
+python run_chemprop.py --data_path "data/10uM_FP_clustered__resistant_pneumococcus_augmented_dataset_v7.csv" --cluster_id_colname cluster_id --val_cluster_ids ${PBS_ARRAY_INDEX} --global_features --model_savename_prefix All_ --random_seed ${random_seed} --with_validation --chosen_cluster
+
+# train D-MPNN model (focal loss, alpha=0.25, gamma=2)
+python run_chemprop.py --loss_fn focal --focal_alpha 25 --focal_gamma 2 --data_path "data/10uM_FP_clustered__resistant_pneumococcus_augmented_dataset_v7.csv" --cluster_id_colname cluster_id --val_cluster_ids ${PBS_ARRAY_INDEX} --global_features --model_savename_prefix All_ --random_seed ${random_seed} --with_validation --chosen_cluster
+
+
+# evaluate D-MPNN model performance
+python eval_chemprop.py --data_path "data/wildset_drug_repurposing_hub.csv" --model_dirs __chemprop_a50y0_s1 --algo chemprop --output_path "data/DRH_output_speedTest.csv" 
