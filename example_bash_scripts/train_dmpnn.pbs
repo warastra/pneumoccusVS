@@ -10,10 +10,13 @@ module load tools/prod
 module load anaconda3/personal
 source activate digichem11
 
-# train D-MPNN model (cross entropy)
+# train D-MPNN model ensemble (cross entropy)
 python run_chemprop.py --data_path "data/10uM_FP_clustered__resistant_pneumococcus_augmented_dataset_v7.csv" --cluster_id_colname cluster_id --val_cluster_ids ${PBS_ARRAY_INDEX} --global_features --model_savename_prefix All_ --random_seed ${random_seed} --with_validation --chosen_cluster
 
-# train D-MPNN model (focal loss, alpha=0.25, gamma=2)
+# train D-MPNN single model (cross entropy), note that the --with_validation argument is removed
+python run_chemprop.py --data_path "data/10uM_FP_clustered__resistant_pneumococcus_augmented_dataset_v7.csv" --cluster_id_colname cluster_id --val_cluster_ids ${PBS_ARRAY_INDEX} --global_features --model_savename_prefix All_ --random_seed ${random_seed} --chosen_cluster
+
+# train D-MPNN model ensemble (focal loss, alpha=0.25, gamma=2)
 python run_chemprop.py --loss_fn focal --focal_alpha 25 --focal_gamma 2 --data_path "data/10uM_FP_clustered__resistant_pneumococcus_augmented_dataset_v7.csv" --cluster_id_colname cluster_id --val_cluster_ids ${PBS_ARRAY_INDEX} --global_features --model_savename_prefix All_ --random_seed ${random_seed} --with_validation --chosen_cluster
 
 

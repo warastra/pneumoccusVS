@@ -21,7 +21,7 @@ params = {'max_depth':[None, 16, 256],
           'criterion':['gini','entropy'],
           'class_weight':['balanced',None]}
 
-rfc = BalancedRandomForestClassifier(n_estimators=200, random_state=42)
+rfc = BalancedRandomForestClassifier(n_estimators=200, random_state=3)
 rfc_cv = GridSearchCV(rfc, params, cv =5, n_jobs=5, scoring='average_precision')
 rfc_cv.fit(train_fps, df.loc[train_idx]['final_activity_label'])
 joblib.dump(rfc_cv.best_estimator_, r'../../model_garden/tuned_rfc_morgan_seed3.joblib')
