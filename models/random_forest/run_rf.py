@@ -12,8 +12,8 @@ train_idx = df[df.cluster_id!=-1].index.values
 test_idx = df[df.cluster_id==-1].index.values
 
 # generate 2048-bit morgan fingerprint of radius 3
-train_fps = [AllChem.GetMorganFingerprintAsBitVect(Chem.MolFromSmiles(smiles), 3, 2048) for smiles in df.loc[train_idx]['Smiles'].values]
-test_fps = [AllChem.GetMorganFingerprintAsBitVect(Chem.MolFromSmiles(smiles), 3, 2048) for smiles in df.loc[test_idx]['Smiles'].values]
+train_fps = [AllChem.GetMorganFingerprintAsBitVect(Chem.MolFromSmiles(smiles), 3, 2048, useChirality=True) for smiles in df.loc[train_idx]['Smiles'].values]
+test_fps = [AllChem.GetMorganFingerprintAsBitVect(Chem.MolFromSmiles(smiles), 3, 2048, useChirality=True) for smiles in df.loc[test_idx]['Smiles'].values]
 
 # hyperparameter tuning
 params = {'max_depth':[None, 16, 256],

@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--cluster_id_colname', default='cluster_id',  type=str, help='name of the column containing cluster ID')
     parser.add_argument('--model_dirs', default='_',  type=str, help='filename prefix of the saved model')
     parser.add_argument('--random_seed', default=32,  type=int, help='torch random seed')
-    parser.add_argument('--global_features', action='store_true',  type=str, help='whether to concatenate RDKIT molecular descriptors')
+    parser.add_argument('--global_features', action='store_true', help='whether to concatenate RDKIT molecular descriptors')
     parser.add_argument('--loss_fn', default='cross_entropy', nargs='?',  type=str, choices=['cross_entropy', 'focal'], help='choice of algorithms')
     parser.add_argument('--focal_alpha', default=0.25,  type=int, help='focal loss alpha, only applicable if loss_fn == "focal"')
     parser.add_argument('--focal_gamma', default=2,  type=int, help='focal loss gamma, only applicable if loss_fn == "focal"')
@@ -46,10 +46,10 @@ if __name__ == '__main__':
         test_df = test_df.iloc[:args.data_limit]
     # test_df = df[df[args.cluster_id_colname]==-1]
     
-    if args.algo == 'dmpnn':
+    if not args.global_features:
         mpnn_featurizer = DMPNNFeaturizer()
         global_feat_size = 0
-    elif args.algo == 'chemprop':
+    else:
         mpnn_featurizer = DMPNNFeaturizer(features_generators=['rdkit_desc_normalized']) # with molecular-level features
         global_feat_size = 200
 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     else:
         loss_fn=None
 
-    model_files = glob.glob(os.path.join('model_garden', f'{args.model_dirs}*'))
+    model_files = glob.glob(f'{args.model_dirs}*')
     model_ensembles = []
     print("inference start time: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     for model_dir in model_files:

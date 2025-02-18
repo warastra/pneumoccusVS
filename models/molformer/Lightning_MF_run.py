@@ -12,7 +12,7 @@ from tqdm import tqdm
 from functools import partial
 
 from dataset import MoleculeDataset, smilesCollate
-from lightning_model import FFN, FFNMolFormer, FFNMolFormer_Global
+from lightning_model import FFN, FFNMolFormer
 from lightning.pytorch import Trainer, seed_everything
 from lightning.pytorch.callbacks import ModelCheckpoint
 from sklearn.model_selection import train_test_split
@@ -55,17 +55,10 @@ if __name__ == '__main__':
 
     df = pd.read_csv(args.data_path)
     smiles_collater = partial(smilesCollate, tokenizer=MolFormerXL_tokenizer, max_len=800, get_global_features=args.with_global_features)
-    seed_everything(args.random_seed)
+    seed_everything(args.random_seed, workers=True)
     # torch.autograd.detect_anomaly(True)
-
-    if args.with_global_features:
-        model_fn = FFNMolFormer_Global
-        ffn_hidden_dim = 1600
-    else:
-        model_fn = FFNMolFormer
-        ffn_hidden_dim = 1536
     
-    model = model_fn(n_layers=6, hidden_dim=ffn_hidden_dim, is_frozen=args.is_frozen, dropout=0.4)
+    model = FFNMolFormer(n_layers=6, hidden_dim=1536, is_frozen=args.is_frozen, dropout=0.4)
     if args.train_all:
         test_fold = []
         args.chosen_cluster_ids = args.chosen_cluster_ids + [-1]
@@ -101,12 +94,14 @@ if __name__ == '__main__':
     
     # initialize pytorch lightning trainer
     trainer = Trainer(
-                default_root_dir="lightning_checkpoint", 
+                # default_root_dir="lightning_checkpoint", 
                 max_epochs=args.nEpochs, 
-                callbacks=[checkpoint_callback], 
+                deterministic=True,
+                # callbacks=[checkpoint_callback], 
                 fast_dev_run=args.dev_run)
     
     print('training start...')
+    print(f'validation is: {val_clusters_str}')
     if args.with_validation:
         val_idx = train_val_df[train_val_df[args.cluster_id_colname].isin(args.val_cluster_ids)].index.values
         if args.split_method == 'random':
@@ -123,7 +118,7 @@ if __name__ == '__main__':
             train_idx = [x for x in train_val_df.index.values if x not in val_idx]
         
         val_dataset = MoleculeDataset(df.loc[val_idx]['Smiles'].values, df.loc[val_idx]['final_activity_label'].values)
-        val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=smiles_collater, num_workers=8)
+        val_loader = DataLoader(val_dataset, persistent_workers=True,batch_size=args.batch_size, shuffle=False, collate_fn=smiles_collater, num_workers=8)
     else:
         val_loader = test_loader
         train_idx = train_val_df.index.values

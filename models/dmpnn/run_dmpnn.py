@@ -48,9 +48,11 @@ if __name__ == '__main__':
     if args.global_features :
         mpnn_featurizer = DMPNNFeaturizer(features_generators=['rdkit_desc_normalized']) # with molecular-level features
         global_feat_size = 200
+        algo='global'
     else:
         mpnn_featurizer = DMPNNFeaturizer()
         global_feat_size = 0
+        algo='noRDKITfeat'
     
 
     mols = [Chem.MolFromSmiles(smiles) for smiles in df["Smiles"]]
@@ -121,7 +123,7 @@ if __name__ == '__main__':
                             aggregation='sum',
                             global_features_size=global_feat_size,
                             # model_dir='model_garden/{args.algo}_{args.loss_fn}_s{args.random_seed}'
-                            model_dir=os.path.join('model_garden', rf'{args.model_savename_prefix}{args.algo}_{args.loss_fn}_s{args.random_seed}')
+                            model_dir=os.path.join('model_garden', rf'{args.model_savename_prefix}{algo}_{args.loss_fn}_s{args.random_seed}')
                             )
     
     

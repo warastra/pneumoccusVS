@@ -72,11 +72,11 @@ if __name__ == '__main__':
     with torch.no_grad():
         ensemble_y_scores = []
         for model_path in tqdm(model_files):
-            model = FFNMolFormer.load_from_checkpoint(model_path).to(device='cuda')
+            model = FFNMolFormer.load_from_checkpoint(model_path).to(device=device)
             model.eval()
             y_scores = []
             for batch in tqdm(test_loader, leave=False):
-                batch = batch.to(device='cuda')
+                batch = batch.to(device=device)
                 output = model(**batch)
                 # print(output.shape)
                 y_scores.append(output.cpu())
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     print('\tAUPRC: ', auc(p_recall, p_precision))
 
     if args.output_path is not None:
-        df[['Smiles', 'cluster_id', 'prediction', 'uncertainty']].to_csv(args.output_path, index=False)
+        df[['Smiles', 'prediction', 'uncertainty']].to_csv(args.output_path, index=False)
     
     print("finish time: ", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     
